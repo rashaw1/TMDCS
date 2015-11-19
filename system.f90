@@ -25,7 +25,7 @@ module SYSTEM
     ! 2nd index: particle number (N)
 
     real(dp), allocatable, dimension(:,:) :: forces
-
+    
 contains
     subroutine initialise(vN, viter_tot, vT, vdt, vbox, vr_cut)
         integer, intent(in) :: vN, viter_tot
@@ -47,7 +47,6 @@ contains
 
         ppl = ceiling(N ** (1d0/3d0)) ! particles per length unit
         dist = box / ppl ! distance between particles
-        write(*,*) ppl, dist
 
         X: do i = 0, ppl - 1
             Y: do j = 0, ppl - 1
@@ -56,9 +55,9 @@ contains
                     state(2,num) = dist * (i + 0.5)
                     state(3,num) = dist * (j + 0.5)
                     state(4,num) = dist * (k + 0.5)
-                    state(5,num) = 0
+                    state(5,num) = 1.0
                     state(6,num) = 0
-                    state(7,num) = 0
+                    state(7,num) = -1.0
 
                     if (num == N) then
                         exit X
@@ -77,4 +76,13 @@ contains
     subroutine finalise()
         deallocate(state, params, forces)
     end subroutine
-end module
+
+    subroutine print_system()
+      ! Prints the SYSTEM out for debugging purposes
+      integer :: i
+      do i = 1, N
+         write(*, *) state(:, i)
+      end do
+    end subroutine print_system
+    
+end module SYSTEM
