@@ -77,14 +77,15 @@ contains
         !write(*,*) dist
 
         ! Calculate Lennard-Jones Interaction Energy
-            ! It is useful to have the ratio of sigma^6 to r^6
+        
+        ! It is useful to have the ratio of sigma^6 to r^6
         if (dist >= 1d0) then
            ratio = (sigma ** 6) / (dist ** 3)
         else
            ratio = (sigma**6)
            dist = 1d0
         endif
-
+        
         energy = 4 * epsil * ( (ratio ** 2) - ratio )
         ! Calculate forces
         forcecoeff = 48 * epsil * (1/dist) * ( ( ratio ** 2 ) - ratio / 2 )
@@ -92,12 +93,11 @@ contains
         do k=1, 3, 1
            forces(k, i) = forces(k, i) + forcecoeff*rij(k)
            forces(k, j) = forces(k, j) - forcecoeff*rij(k)
-        enddo 
+        enddo
         !write(*,*) energy
-        
-    end subroutine
-
-    subroutine distance_calculator(i,j,rij)
+      end subroutine lennard_jones
+   
+   subroutine distance_calculator(i,j,rij)
         ! This subroutine will calculate distance taking into account periodic
         ! boundary conditions
 

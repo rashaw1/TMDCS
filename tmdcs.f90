@@ -4,29 +4,26 @@ program tmdcs
   use system
   use theforce
   use integrator
-
+  use thermostat
+  
   implicit none
 
   ! Declare variables
-  real(dp), dimension(3) :: energies
-  
+  real(dp), dimension(50*99) :: energies
+  integer :: i
   ! Would read input here
   
   ! Initialise the SYSTEM and set particles on a grid
-  call initialise(3, 5, 0d0, 1d0, 10d0, 5d0)
+  ! initialise(N, iter_tot, T, dt, box, r_cut) 
+  call initialise(100, 500, 0.5d0, 0.1d0, 77.395d0, 5d0)
   call set_positions_grid()
+  write(*, *) 'INITIAL POSITIONS:'
   call print_system()
   
   ! Put some test values into the arrays
-  params(1, 1) = 4.0
-  params(1, 2) = 1.0
-  params(1, 3) = 2.0
-  params(2, 1) = 6.5
-  params(2, 2) = 1.3
-  params(2, 3) = 4.7
-  params(3, 1) = 2.0
-  params(3, 2) = 0.5
-  params(3, 3) = 2.0
+  do i = 1, 100
+     params(1:3, i) = 1d0
+  end do
 
   ! Calculate forces once
   call force(energies)
@@ -35,12 +32,15 @@ program tmdcs
   ! Procedure:
   ! 1) Calculate forces
   ! 2) Update velocities
-  ! 3) Update positions
-  ! 4) Print data
+  ! 3) Rescale velocities
+  ! 4) Update positions
+  ! 5) Print data
   do iter = 1, iter_tot
      call force(energies)
      call calc_velocities()
+     call rescale()
      call calc_positions()
+     write(*, *) 100
      write(*, *) 'Iteration ', iter
      call print_system()
   end do

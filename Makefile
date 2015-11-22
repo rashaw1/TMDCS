@@ -1,11 +1,11 @@
 F90 = gfortran
-FFLAGS = -Wall -O0 -g -fcheck=bounds
+FFLAGS = -O 
 GNUPLOT = gnuplot
 
 %.o: %.f90
 	$(F90) $(FFLAGS) -c $*.f90
 
-objfiles = constants.o system.o integrator.o theforce.o tmdcs.o
+objfiles = constants.o system.o thermostat.o integrator.o theforce.o tmdcs.o
 
 all: tmdcs
 
