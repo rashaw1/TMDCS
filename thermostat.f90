@@ -2,6 +2,7 @@ module thermostat
   ! Controls the temperature of the SYSTEM
   use system
   use constants
+  implicit none
   
 contains
 
