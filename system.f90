@@ -46,10 +46,6 @@ contains
         ! TODO: random seed
     end subroutine
 
-    subroutine finalise()
-        deallocate(state, params, forces)
-    end subroutine
-
     subroutine set_positions_grid()
         integer :: i, j, k, num = 1, ppl
         real(dp) :: dist, v_scale
