@@ -17,7 +17,7 @@ module SYSTEM
     ! params
     ! 1st index: mass, others (LJ: size, well depth == 3)
     ! 2nd index: particle number (N)
-
+    
     real(dp), allocatable, dimension(:,:) :: params
 
     ! forces
@@ -25,21 +25,21 @@ module SYSTEM
     ! 2nd index: particle number (N)
 
     real(dp), allocatable, dimension(:,:) :: forces
-
+    
 contains
-    subroutine initialise(v_N, v_iter_tot, v_T, v_dt, v_box, v_r_cut)
-        ! initialises variables and allocates arrays for a given set of parameters
-        ! TODO: units of input? conversion to MD units?
+    subroutine initialise(vN, viter_tot, vT, vdt, vbox, vr_cut)
+        integer, intent(in) :: vN, viter_tot
+        real(dp), intent(in) :: vT, vdt, vbox, vr_cut
+        integer, dimension(1) :: seed
 
-        integer, intent(in) :: v_N, v_iter_tot
-        real(dp), intent(in) :: v_T, v_dt, v_box, v_r_cut
-
-        N = v_N
-        iter_tot = v_iter_tot
-        T = v_T
-        dt = v_dt
-        box = v_box
-        r_cut = v_r_cut
+        call random_seed()
+        
+        N = vN
+        iter_tot = viter_tot
+        T = vT
+        dt = vdt
+        box = vbox
+        r_cut = vr_cut
 
         allocate(state(7,N), params(3,N), forces(3,N))
 
@@ -59,17 +59,17 @@ contains
 
         X: do i = 0, ppl - 1
             Y: do j = 0, ppl - 1
-                Z: do k = 0, ppl - 1
+               Z: do k = 0, ppl - 1
                     state(1,num) = 1
                     state(2,num) = dist * (i + 0.5)
                     state(3,num) = dist * (j + 0.5)
                     state(4,num) = dist * (k + 0.5)
 
                     ! set velocities randomly in (-1, 1)
-                    ! scale up by sqrt(3T) as <v^2> = 1 here
-                    ! and <T> = <v^2>/3
+                    ! scale up by sqrt(3NT) as <v^2> = 1 here
+                    ! and <T> = <v^2>/3N
                     call random_number(state(5:7,num))
-                    v_scale = sqrt(3 * T)
+                    v_scale = sqrt(3 * N * T)
                     state(5:7,num) = (state(5:7,num) * 2 * v_scale) - v_scale
 
                     if (num == N) then
@@ -87,31 +87,44 @@ contains
     !end subroutine
 
     function calc_avg_vel()
-        real(dp), dimension(3) :: calc_avg_vel(3)
-        integer :: i
+      real(dp), dimension(3) :: calc_avg_vel(3)
+      integer :: i
 
-        calc_avg_vel = 0
+      calc_avg_vel = 0
 
-        do i = 1, N
-            calc_avg_vel = calc_avg_vel + state(5:7,i)
-        end do
-        calc_avg_vel = calc_avg_vel / N
-    end function
+      do i = 1, N
+         calc_avg_vel = calc_avg_vel + state(5:7,i)
+      end do
+      calc_avg_vel = calc_avg_vel / N
+    end function calc_avg_vel
 
     real(dp) function calc_avg_vel_squared()
-        integer :: i
-        real(dp) :: vel_sq
+      integer :: i
+      real(dp) :: vel_sq
 
-        calc_avg_vel_squared = 0
+      calc_avg_vel_squared = 0
 
-        do i = 1, N
-            vel_sq = 0
-            vel_sq = vel_sq + state(5,i) ** 2
-            vel_sq = vel_sq + state(6,i) ** 2
-            vel_sq = vel_sq + state(7,i) ** 2
-            calc_avg_vel_squared = calc_avg_vel_squared + vel_sq
-        end do
+      do i = 1, N
+         vel_sq = 0
+         vel_sq = vel_sq + state(5,i) ** 2
+         vel_sq = vel_sq + state(6,i) ** 2
+         vel_sq = vel_sq + state(7,i) ** 2
+         calc_avg_vel_squared = calc_avg_vel_squared + vel_sq
+      end do
+      
+      calc_avg_vel_squared = calc_avg_vel_squared / N
+    end function calc_avg_vel_squared
+          
+    subroutine finalise()
+        deallocate(state, params, forces)
+    end subroutine
 
-        calc_avg_vel_squared = calc_avg_vel_squared / N
-    end function
-end module
+    subroutine print_system()
+      ! Prints the SYSTEM out for debugging purposes
+      integer :: i
+      do i = 1, N
+         write(*, *) 'AR ', state(2:4, i)
+      end do
+    end subroutine print_system
+    
+end module SYSTEM
