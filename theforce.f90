@@ -84,7 +84,7 @@ contains
         energy = 4 * epsil * ( (ratio ** 2) - ratio )
         ! Calculate forces, only for particles which are within the cutoff
         ! distance of each other
-        if (dist / r_cut) then
+        if (dist < r_cut) then
             forcecoeff = 48 * epsil * (1/dist) * ( ( ratio ** 2 ) - ratio / 2 )
             
             do k=1, 3, 1
