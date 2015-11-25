@@ -10,7 +10,7 @@ module SYSTEM
     
     type :: particle_force
         real(dp) :: fx, fy, fz
-    end type particle
+    end type particle_force
 
     ! variables
     

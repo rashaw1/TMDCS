@@ -16,6 +16,7 @@ program tmdcs
   
   ! Initialise the SYSTEM and set particles on a grid
   ! initialise(N, iter_tot, T, dt, box, r_cut) 
+  call open_files()
   call initialise(100, 500, 0.5d0, 0.1d0, 77.395d0, 5d0)
   call set_positions_grid()
   write(*, *) 'INITIAL POSITIONS:'
@@ -47,5 +48,6 @@ program tmdcs
   end do
 
   call finalise()
+  call close_files()
   
 end program tmdcs
