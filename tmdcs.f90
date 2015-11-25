@@ -5,6 +5,7 @@ program tmdcs
   use theforce
   use integrator
   use thermostat
+  use input
   
   implicit none
 

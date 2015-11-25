@@ -2,6 +2,16 @@ module SYSTEM
     use constants
     implicit none
 
+    type :: particle
+        integer :: a_type
+        real(dp) :: x, y, z
+        real(dp) :: vx, vy, vz
+    end type particle
+    
+    type :: particle_force
+        real(dp) :: fx, fy, fz
+    end type particle
+
     ! variables
     
     integer :: N, iter = 1, iter_tot
