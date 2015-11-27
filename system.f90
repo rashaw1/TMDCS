@@ -1,5 +1,6 @@
 module SYSTEM
     use constants
+    use random
     implicit none
 
     type :: particle
@@ -37,13 +38,8 @@ module SYSTEM
     real(dp), allocatable, dimension(:,:) :: forces
     
 contains
-    subroutine initialise(vN, viter_tot, vT, vdt, vbox, vr_cut)
-        integer, intent(in) :: vN, viter_tot
-        real(dp), intent(in) :: vT, vdt, vbox, vr_cut
-        integer, dimension(1) :: seed
-
-        call random_seed()
-        
+    subroutine initialise()
+        call init_random()
         N = vN
         iter_tot = viter_tot
         T = vT
@@ -52,8 +48,6 @@ contains
         r_cut = vr_cut
 
         allocate(state(7,N), params(3,N), forces(3,N))
-
-        ! TODO: random seed
     end subroutine
 
     subroutine set_positions_grid()
@@ -67,6 +61,7 @@ contains
             Y: do j = 0, ppl - 1
                Z: do k = 0, ppl - 1
                     state(1,num) = 1
+
                     state(2,num) = dist * (i + 0.5)
                     state(3,num) = dist * (j + 0.5)
                     state(4,num) = dist * (k + 0.5)
@@ -74,9 +69,11 @@ contains
                     ! set velocities randomly in (-1, 1)
                     ! scale up by sqrt(3NT) as <v^2> = 1 here
                     ! and <T> = <v^2>/3N
-                    call random_number(state(5:7,num))
+
                     v_scale = sqrt(3 * N * T)
-                    state(5:7,num) = (state(5:7,num) * 2 * v_scale) - v_scale
+                    state(5,num) = random_real(-v_scale, v_scale)
+                    state(6,num) = random_real(-v_scale, v_scale)
+                    state(7,num) = random_real(-v_scale, v_scale)
 
                     if (num == N) then
                         exit X
