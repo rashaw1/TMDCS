@@ -1,15 +1,22 @@
 module errors
     use iso_fortran_env
     implicit none
-    integer :: logfile
     logical :: dead
+    integer :: logfile
+    integer :: verbosity = 4
+
+    ! verbosity ranges from 0 upwards
+    ! 0: only write out fatal errors
+    ! 1: only write out errors and warnings
+    ! 2 and up: write out increasingly less important messages
   
+
 contains
     subroutine errors_init(filename)
         character(*), intent(in) :: filename
         integer :: ioerr
-        open(newunit = logfile, file = filename // ".log", action = 'write', &
-            iostat = ioerr)
+        open(newunit = logfile, file = trim(filename) // ".log", &
+            action = "write", iostat = ioerr)
 
         if (ioerr > 0) then
             ! could not even open the logfile
@@ -18,12 +25,14 @@ contains
             call exit(1)
         end if
 
-        write(logfile, "(A)") "Begin"
+        !write(logfile, "(A)") "Beginning TMDCS"
+        call throw_log("Beginning TMDCS")
     end subroutine
     
     subroutine errors_final()
         integer :: ioerr
-        write(logfile, "(A)") "End"
+        !write(logfile, "(A)") "Ending TMDCS"
+        call throw_log("Ending TMDCS")
         close(logfile, iostat = ioerr)
 
         if (ioerr > 0) then
@@ -52,10 +61,36 @@ contains
 
     subroutine throw_warning(message)
         character(*), intent(in) :: message
+        character(80) :: warn_string
+        
+        if (verbosity >= 0) then
+            warn_string = "WARNING: " // message
 
-        write(logfile, 200) 'WARNING:', message
+            !write warnings to both stderr and logfile
+            write(logfile, "(A)") warn_string
+            write(error_unit, "(A)") warn_string
+        end if
 
-200 format(1X, A10, A60)
+!        write(logfile, 200) 'WARNING:', message
+!200 format(1X, A10, A60)
     end subroutine throw_warning
+
+    subroutine throw_log(message, min_verbosity)
+        ! writes a message to the log file
+        ! min_verbosity defaults to 2, and should be 2 or higher
+        character(*), intent(in) :: message
+        integer, optional :: min_verbosity
+        integer :: verb
+
+        if (present(min_verbosity)) then
+            verb = min_verbosity
+        else
+            verb = 2
+        end if
+        
+        if (verbosity >= verb) then
+            write(logfile, "(A)") message
+        end if
+    end subroutine
 
 end module errors

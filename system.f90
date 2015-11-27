@@ -38,8 +38,10 @@ module SYSTEM
     real(dp), allocatable, dimension(:,:) :: forces
     
 contains
-    subroutine initialise()
+    subroutine initialise(filename)
+        character(255), intent(in) :: filename
         call random_init()
+!        call variables_init(filename)
         N = 100
         iter_tot = 500
         T = 0.5
