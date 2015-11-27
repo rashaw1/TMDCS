@@ -44,17 +44,19 @@ contains
         call parse_runfile()
 
         N = 100
+        write(*,*) "geom: ", output_geom
+        write(*,*) "jmol: ", output_jmol
 
         close(unit_run)
         allocate(state(7,N), params(3,N), forces(3,N))
         
-!        call exit(0)
+        call exit(0)
     end subroutine
 
     subroutine parse_runfile()
         integer :: ios
         real(dp) :: total_time
-        character(20) :: keyword, str1, str2
+        character(20) :: keyword, str1 = "", str2 = ""
         do
             read(unit_run, *, iostat = ios) keyword
             if (ios < 0) then
@@ -74,7 +76,12 @@ contains
                     read(unit_run, *) keyword, thermostat_name
                 case ("output")
                     read(unit_run, *) keyword, str1, str2
-                    ! convert to logicals
+                    if ((str1 == "geom") .or. (str2 == "geom")) then
+                        output_geom = .true.
+                    end if
+                    if ((str1 == "jmol") .or. (str2 == "jmol")) then
+                        output_jmol = .true.
+                    end if
                 case ("T")
                     read(unit_run, *) keyword, T
                 case ("P")
