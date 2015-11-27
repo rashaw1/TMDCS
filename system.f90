@@ -16,8 +16,11 @@ module SYSTEM
     ! variables
     
     integer :: N, iter = 1, iter_tot
-    real(dp) :: T, dt, box, r_cut
+    real(dp) :: T, P, dt, box, r_cut
     real(dp) :: Ek_tot = 0, v_tot = 0, Ek_tot_prev = 0, v_tot_prev = 0
+    character(20) :: force_name, integrator_name, thermostat_name
+    logical :: output_geom = .false., output_jmol = .false.
+
 
     ! state
     ! 1st index: type, pos_x, pos_y, pos_z, vel_x, vel_y, vel_z (7)
@@ -38,19 +41,19 @@ module SYSTEM
     real(dp), allocatable, dimension(:,:) :: forces
     
 contains
-    subroutine initialise(filename)
-        character(255), intent(in) :: filename
-        call random_init()
-!        call variables_init(filename)
-        N = 100
-        iter_tot = 500
-        T = 0.5
-        dt = 0.1
-        box = 77.395
-        r_cut = 5 * 5
-
-        allocate(state(7,N), params(3,N), forces(3,N))
-    end subroutine
+!    subroutine initialise(filename)
+!        character(255), intent(in) :: filename
+!        call random_init()
+!!        call variables_init(filename)
+!        N = 100
+!        iter_tot = 500
+!        T = 0.5
+!        dt = 0.1
+!        box = 77.395
+!        r_cut = 5 * 5
+!
+!        allocate(state(7,N), params(3,N), forces(3,N))
+!    end subroutine
 
     subroutine set_positions_grid()
         integer :: i, j, k, num = 1, ppl
