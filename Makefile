@@ -4,7 +4,7 @@ FFLAGS = -O
 %.o: %.f90
 	$(F90) $(FFLAGS) -c $*.f90
 
-objfiles = constants.o input.o system.o thermostat.o integrator.o theforce.o tmdcs.o
+objfiles = errors.o constants.o random.o system.o io.o thermostat.o integrator.o theforce.o tmdcs.o
 
 all: tmdcs
 

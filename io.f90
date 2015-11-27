@@ -7,7 +7,7 @@ contains
     ! Opens a file to a given filestream
     integer, intent(out) :: filestream
     integer, intent(in) :: readwrite ! 0 for read, 1 for write, 2 for both
-    character(:), intent(in) :: filename
+    character(*), intent(in) :: filename
     integer :: ioerr ! Check status of opening file
 
     if (readwrite == 0) then
@@ -19,7 +19,7 @@ contains
     end if
 
     ! Check that opening was successful
-    if (iostat > 0) call throw_error('IO', 'Failed to open file ' // filename)
+    if (ioerr > 0) call throw_error('IO', 'Failed to open file ' // filename)
   end subroutine open_file
 
 end module io

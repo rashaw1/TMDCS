@@ -39,13 +39,13 @@ module SYSTEM
     
 contains
     subroutine initialise()
-        call init_random()
-        N = vN
-        iter_tot = viter_tot
-        T = vT
-        dt = vdt
-        box = vbox
-        r_cut = vr_cut
+        call random_init()
+        N = 100
+        iter_tot = 500
+        T = 0.5
+        dt = 0.1
+        box = 77.395
+        r_cut = 5 * 5
 
         allocate(state(7,N), params(3,N), forces(3,N))
     end subroutine

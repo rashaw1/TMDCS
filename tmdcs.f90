@@ -1,23 +1,27 @@
 program tmdcs
   ! The main program for the TMDCS molecular dynamics package
+  use errors
   use constants
   use system
   use theforce
   use integrator
   use thermostat
-  use input
+  use io
   
   implicit none
 
   ! Declare variables
   real(dp), dimension(50*99) :: energies
   integer :: i
+
+  ! setup logging
+  call errors_init("test")
   ! Would read input here
   
   ! Initialise the SYSTEM and set particles on a grid
   ! initialise(N, iter_tot, T, dt, box, r_cut) 
-  call open_files()
-  call initialise(100, 500, 0.5d0, 0.1d0, 77.395d0, 5d0)
+!  call open_files()
+  call initialise()!100, 500, 0.5d0, 0.1d0, 77.395d0, 5d0)
   call set_positions_grid()
   write(*, *) 'INITIAL POSITIONS:'
   call print_system()
@@ -48,5 +52,6 @@ program tmdcs
   end do
 
   call finalise()
-  call close_files()
+!  call close_files()
+  call errors_final()
 end program tmdcs
