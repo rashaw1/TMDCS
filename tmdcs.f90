@@ -36,9 +36,8 @@ program tmdcs
     write(*, *) 'INITIAL POSITIONS:'
     call print_system()
 
-    ! Put some test values into the arrays
-    do i = 1, 100
-        params(1:3, i) = 1d0
+    do i = 1, N
+        write(*,*) atom_names(i), params(:, i)
     end do
 
     ! Calculate forces once

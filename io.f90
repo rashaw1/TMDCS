@@ -33,12 +33,6 @@ contains
         character(*), intent(in) :: filename
         ! Initialise variables in the system
 
-        ! get params from runfile - done
-        ! get N from geom file - done
-        ! put geom file data into array
-        ! open force params file
-        ! put force params into array
-        
         call open_file(unit_run, trim(filename) // ".run", 0)
         call parse_runfile()
         close(unit_run)
@@ -52,7 +46,10 @@ contains
         rewind(unit_geom)
         call parse_geomfile()
         close(unit_geom)
-
+        
+        call open_file(unit_force, trim(force_name) // ".dat", 0)
+        call parse_forcefile()
+        close(unit_force)
     end subroutine
 
     subroutine parse_runfile()
@@ -137,7 +134,7 @@ contains
                 ! TODO: support GRID format
             case default
                 call throw_error("io", "Geom file in unsupported format " // &
-                    file_format)
+                    trim(file_format))
         end select
     end subroutine
 
@@ -178,6 +175,53 @@ contains
                 call throw_error("io", "Geom file in unsupported format " // &
                     file_format)
         end select
+    end subroutine
+
+    subroutine parse_forcefile()
+        character(8) :: atom_name
+        character(255) :: line
+        integer :: i, ioerr
+        real(dp) :: mass, sigma, eps
+
+        params = -1 ! to see if any were missed later
+
+        ! only LJ for now
+        do
+            read(unit_force, *, iostat = ioerr) atom_name
+
+            if (ioerr < 0) then
+                exit
+            end if
+
+            read(unit_force, *, iostat = ioerr) mass
+            read(unit_force, *, iostat = ioerr) sigma
+            read(unit_force, *, iostat = ioerr) eps
+
+            mass = mass / ArMass
+
+            if (ioerr < 0) then
+                call throw_error("io", "force parameters end unexpectedly")
+            else if (ioerr > 0) then
+                call throw_error("io", "Error reading " // trim(force_name) // ".dat")
+            end if
+
+            do i = 1, N
+                if (atom_names(i) == atom_name) then
+                    params(1, i) = mass
+                    params(2, i) = sigma
+                    params(3, i) = eps
+                end if
+            end do
+        end do
+        
+        ! check for missing atom types
+
+        do i = 1, N
+            if (params(i, 1) < 0) then
+                call throw_error("io", "atom type " // trim(atom_names(i)) // &
+                    " missing from " // trim(force_name) // ".dat")
+            end if
+        end do
     end subroutine
 
     character(20) function inttostr(num)
