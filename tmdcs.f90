@@ -32,7 +32,7 @@ program tmdcs
     call random_init() ! seed PRNG
     call system_init(filename) ! read in variables, initialise arrays
 
-    call set_positions_grid()
+    !call set_positions_grid()
     write(*, *) 'INITIAL POSITIONS:'
     call print_system()
 

@@ -45,10 +45,14 @@ contains
 
         call open_file(unit_geom, trim(filename) // ".geom", 0)
         call parse_geomfile_N()
-        close(unit_geom)
 
         allocate(positions(3,N), velocities(3,N), params(3,N), forces(3,N), &
             atom_names(N))
+
+        rewind(unit_geom)
+        call parse_geomfile()
+        close(unit_geom)
+
     end subroutine
 
     subroutine parse_runfile()
@@ -104,8 +108,8 @@ contains
     end subroutine
 
     subroutine parse_geomfile_N()
-        character(10) file_format
-        character(20) line
+        character(10) :: file_format
+        character(255) :: line
         integer :: ioerr
 
         N = 0
@@ -135,7 +139,45 @@ contains
                 call throw_error("io", "Geom file in unsupported format " // &
                     file_format)
         end select
-        
+    end subroutine
+
+    subroutine parse_geomfile()
+        character(10) :: file_format
+        character(8) :: atom_name
+        character(255) :: line
+        integer :: ioerr, i
+
+        i = 1
+
+        read(unit_geom, *) file_format
+        select case(file_format)
+            case("XYZ")
+                XYZ: do
+                    read(unit_geom, *, iostat=ioerr) line
+                    line = adjustl(line)
+
+                    if (ioerr < 0) then
+                        exit XYZ
+                    else if (ioerr > 0) then
+                        call throw_error("io", "Error reading geom file")
+                    end if
+                    
+                    if (charisalpha(line(1:1))) then
+                        atom_name = trim(line)
+                    else
+                        backspace(unit_geom)
+                        read(unit_geom, *) positions(:, i), velocities(:, i)
+                        atom_names(i) = atom_name
+                        i = i+1
+                    end if
+                end do XYZ
+            case("GRID")
+                call throw_error("io", "GRID format not yet implemented")
+                ! TODO: support GRID format
+            case default
+                call throw_error("io", "Geom file in unsupported format " // &
+                    file_format)
+        end select
     end subroutine
 
     character(20) function inttostr(num)
