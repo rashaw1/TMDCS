@@ -20,7 +20,7 @@ contains
 
     ! Now rescale the velocities
     do i = 1, N
-       state(5:7, i) = v_scale*state(5:7, i)
+       velocities(:, i) = v_scale * velocities(:, i)
     end do
 
   end subroutine rescale

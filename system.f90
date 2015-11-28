@@ -3,16 +3,6 @@ module SYSTEM
     use random
     implicit none
 
-    type :: particle
-        integer :: a_type
-        real(dp) :: x, y, z
-        real(dp) :: vx, vy, vz
-    end type particle
-    
-    type :: particle_force
-        real(dp) :: fx, fy, fz
-    end type particle_force
-
     ! variables
     
     integer :: N, iter = 1, iter_tot
@@ -21,43 +11,31 @@ module SYSTEM
     character(20) :: force_name, integrator_name, thermostat_name
     logical :: output_geom = .false., output_jmol = .false.
 
+    ! 1st index: particle number (N)
+    character(8), allocatable, dimension(:) :: atom_names
+    
+    ! 1st index: pos_x, pos_y, pos_z (3)
+    ! 2nd index: particle number(N)
+    real(dp), allocatable, dimension(:,:) :: positions
 
-    ! state
-    ! 1st index: type, pos_x, pos_y, pos_z, vel_x, vel_y, vel_z (7)
+    ! 1st index: vel_x, vel_y, vel_z (3)
     ! 2nd index: particle number (N)
+    real(dp), allocatable, dimension(:,:) :: velocities
 
-    real(dp), allocatable, dimension(:,:) :: state
-
-    ! params
     ! 1st index: mass, others (LJ: size, well depth == 3)
     ! 2nd index: particle number (N)
-    
     real(dp), allocatable, dimension(:,:) :: params
 
-    ! forces
     ! 1st index: force_x, force_y, force_z
     ! 2nd index: particle number (N)
-
     real(dp), allocatable, dimension(:,:) :: forces
-    
+
 contains
-!    subroutine initialise(filename)
-!        character(255), intent(in) :: filename
-!        call random_init()
-!!        call variables_init(filename)
-!        N = 100
-!        iter_tot = 500
-!        T = 0.5
-!        dt = 0.1
-!        box = 77.395
-!        r_cut = 5 * 5
-!
-!        allocate(state(7,N), params(3,N), forces(3,N))
-!    end subroutine
 
     subroutine set_positions_grid()
         integer :: i, j, k, num = 1, ppl
         real(dp) :: dist, v_scale
+        write(*,*) "set pos"
 
         ppl = ceiling(N ** (1d0/3d0)) ! particles per length unit
         dist = box / ppl ! distance between particles
@@ -65,20 +43,20 @@ contains
         X: do i = 0, ppl - 1
             Y: do j = 0, ppl - 1
                Z: do k = 0, ppl - 1
-                    state(1,num) = 1
+                    atom_names(num) = "gridtest"
 
-                    state(2,num) = dist * (i + 0.5)
-                    state(3,num) = dist * (j + 0.5)
-                    state(4,num) = dist * (k + 0.5)
+                    positions(1,num) = dist * (i + 0.5)
+                    positions(2,num) = dist * (j + 0.5)
+                    positions(3,num) = dist * (k + 0.5)
 
                     ! set velocities randomly in (-1, 1)
                     ! scale up by sqrt(3NT) as <v^2> = 1 here
                     ! and <T> = <v^2>/3N
 
                     v_scale = sqrt(3 * N * T)
-                    state(5,num) = random_real(-v_scale, v_scale)
-                    state(6,num) = random_real(-v_scale, v_scale)
-                    state(7,num) = random_real(-v_scale, v_scale)
+                    velocities(1,num) = random_real(-v_scale, v_scale)
+                    velocities(2,num) = random_real(-v_scale, v_scale)
+                    velocities(3,num) = random_real(-v_scale, v_scale)
 
                     if (num == N) then
                         exit X
@@ -101,37 +79,38 @@ contains
       calc_avg_vel = 0
 
       do i = 1, N
-         calc_avg_vel = calc_avg_vel + state(5:7,i)
+         calc_avg_vel = calc_avg_vel + velocities(:,i)
       end do
       calc_avg_vel = calc_avg_vel / N
     end function calc_avg_vel
 
     real(dp) function calc_avg_vel_squared()
       integer :: i
-      real(dp) :: vel_sq
+      !real(dp) :: vel_sq
 
       calc_avg_vel_squared = 0
 
       do i = 1, N
-         vel_sq = 0
-         vel_sq = vel_sq + state(5,i) ** 2
-         vel_sq = vel_sq + state(6,i) ** 2
-         vel_sq = vel_sq + state(7,i) ** 2
-         calc_avg_vel_squared = calc_avg_vel_squared + vel_sq
+         !vel_sq = 0
+         !vel_sq = vel_sq + velocities(1,i) ** 2
+         !vel_sq = vel_sq + velocities(2,i) ** 2
+         !vel_sq = vel_sq + velocities(3,i) ** 2
+         calc_avg_vel_squared = calc_avg_vel_squared + &
+            dot_product(velocities(:,i), velocities(:,i))
       end do
       
       calc_avg_vel_squared = calc_avg_vel_squared / N
     end function calc_avg_vel_squared
           
     subroutine finalise()
-        deallocate(state, params, forces)
+        deallocate(positions, velocities, params, forces, atom_names)
     end subroutine
 
     subroutine print_system()
       ! Prints the SYSTEM out for debugging purposes
       integer :: i
       do i = 1, N
-         write(*, *) 'AR ', state(2:4, i)
+         write(*, *) 'AR ', positions(:, i)
       end do
     end subroutine print_system
     

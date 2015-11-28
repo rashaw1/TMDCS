@@ -10,7 +10,6 @@ module errors
     ! 1: only write out errors and warnings
     ! 2 and up: write out increasingly less important messages
   
-
 contains
     subroutine errors_init(filename)
         character(*), intent(in) :: filename
@@ -25,13 +24,11 @@ contains
             call exit(1)
         end if
 
-        !write(logfile, "(A)") "Beginning TMDCS"
         call throw_log("Beginning TMDCS")
     end subroutine
     
     subroutine errors_final()
         integer :: ioerr
-        !write(logfile, "(A)") "Ending TMDCS"
         call throw_log("Ending TMDCS")
         close(logfile, iostat = ioerr)
 

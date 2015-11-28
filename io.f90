@@ -47,9 +47,8 @@ contains
         call parse_geomfile_N()
         close(unit_geom)
 
-        allocate(state(7,N), params(3,N), forces(3,N))
-        
-        call exit(0)
+        allocate(positions(3,N), velocities(3,N), params(3,N), forces(3,N), &
+            atom_names(N))
     end subroutine
 
     subroutine parse_runfile()

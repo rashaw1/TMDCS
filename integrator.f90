@@ -27,18 +27,18 @@ contains
        xyzloop: do j = 1, 3
 
           ! Unpack variables from arrays for clarity
-          rt = state(j+1, i)
-          vt = state(j+4, i)
+          rt = positions(j, i)
+          vt = velocities(j, i)
           m = params(1, i)
           ft = forces(j, i)
           
           ! Update position
-          state(j+1, i) = rt + vt*dt + dtsq2*ft/m
+          positions(j, i) = rt + vt*dt + dtsq2*ft/m
           ! Take account of pcbs
-          state(j+1, i) = state(j+1, i) - box*floor(state(j+1, i)/box)
+          positions(j, i) = positions(j, i) - box*floor(positions(j, i)/box)
           
           ! Half-update velocity
-          state(j+4, i) = vt + dt2*ft/m
+          velocities(j, i) = vt + dt2*ft/m
           
        end do xyzloop
 
@@ -61,12 +61,12 @@ contains
        xyzloop: do j = 1, 3
 
           ! Unpack the variables from arrays
-          vt = state(j+4, i)
+          vt = velocities(j, i)
           ft = forces(j, i)
           m = params(1, i)
           
           ! Update the velocities
-          state(j+4, i) = vt + dt2*ft/m
+          velocities(j, i) = vt + dt2*ft/m
        end do xyzloop
 
     end do ploop
