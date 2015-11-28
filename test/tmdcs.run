@@ -1,0 +1,13 @@
+verbosity 4
+
+force LJ
+integrator velocity_verlet
+thermostat basic
+output geom jmol
+
+T 298
+P 1e5
+step 0.1
+time 50
+box 80
+rcut 5
