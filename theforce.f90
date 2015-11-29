@@ -111,12 +111,14 @@ contains
         integer :: k
 
         ! (Move the x, y and z components of i and j into a vector)
-        posi(1) = state(2,i)
-        posi(2) = state(3,i)
-        posi(3) = state(4,i)
-        posj(1) = state(2,j)
-        posj(2) = state(3,j)
-        posj(3) = state(4,j)
+        posi = positions(:, i)
+        posj = positions(:, j)
+        !posi(1) = state(2,i)
+        !posi(2) = state(3,i)
+        !posi(3) = state(4,i)
+        !posj(1) = state(2,j)
+        !posj(2) = state(3,j)
+        !posj(3) = state(4,j)
 
         ! Calculate rij as a vector, taking into account pbcs
         do k = 1, 3, 1
