@@ -6,7 +6,7 @@ module SYSTEM
     ! variables
     
     integer :: N, iter = 1, iter_tot
-    real(dp) :: T, P, dt, box, r_cut
+    real(dp) :: T, P, dt, box, r_cut, e_cut
     real(dp) :: Ek_tot = 0, v_tot = 0, Ek_tot_prev = 0, v_tot_prev = 0
     character(20) :: force_name, integrator_name, thermostat_name
     logical :: output_geom = .false., output_jmol = .false.
@@ -105,13 +105,5 @@ contains
     subroutine finalise()
         deallocate(positions, velocities, params, forces, atom_names)
     end subroutine
-
-    subroutine print_system()
-      ! Prints the SYSTEM out for debugging purposes
-      integer :: i
-      do i = 1, N
-         write(*, *) 'AR ', positions(:, i)
-      end do
-    end subroutine print_system
     
 end module SYSTEM
