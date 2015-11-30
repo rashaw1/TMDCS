@@ -1,6 +1,0 @@
-#compiler files
-*.mod
-*.o
-*.x
-
-.gitignore
