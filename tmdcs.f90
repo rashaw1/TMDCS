@@ -45,7 +45,7 @@ program tmdcs
     call force(energies)
 
     ! Open xyz file
-    call open_file(jmol, trim(filename) // "_out.xyz", 1)
+    call open_file(jmol, trim(filename) // ".xyz", 1)
 
     ! Initialise Nose-Hoover thermostat
     zeta = 0d0 
@@ -75,7 +75,7 @@ program tmdcs
         call write_jmol_xyz(jmol)
     end do
 
-    call open_file(geom_out, trim(filename) // "_out.geom", 1)
+    call open_file(geom_out, trim(filename) // ".out", 1)
     call write_geom(geom_out)
     
     call finalise()
