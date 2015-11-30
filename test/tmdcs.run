@@ -5,9 +5,9 @@ integrator velocity_verlet
 thermostat basic
 output geom jmol
 
-T 298
+T 50
 P 1e5
-step 0.01
-time 50
+step 0.001
+time 10
 box 80
 rcut 5
