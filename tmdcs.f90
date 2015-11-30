@@ -12,7 +12,9 @@ program tmdcs
 
     ! Declare variables
     real(dp), dimension(50*99) :: energies
-    real(dp) :: frequency = 0.001
+    real(dp) :: frequency = 0.001 ! For Andersen thermostat
+    real(dp) :: Q ! For Nose-Hoover thermostat
+    real(dp) :: tau = 1 ! Relaxation time for Nose-Hoover 
     integer :: i
     integer :: jmol, geom_out
     character(255) :: filename
@@ -44,6 +46,10 @@ program tmdcs
 
     ! Open xyz file
     call open_file(jmol, trim(filename) // "_out.xyz", 1)
+
+    ! Initialise Nose-Hoover thermostat
+    zeta = 0d0 
+    Q = 3*N*T*tau**2
     
     call throw_log("Beginning main MD loop", 2)
     ! Start main loop
@@ -56,10 +62,12 @@ program tmdcs
     do iter = 1, iter_tot
         call throw_log("Starting iteration " // trim(inttostr(iter)), 2)
         call force(energies)
-        call calc_velocities()
+        call calc_velocities(zeta)
         ! call rescale()
-        call andersen(frequency)
-        call calc_positions()
+        ! call andersen(frequency)
+        call nose_hoover(Q)
+        call calc_positions(zeta)
+        call nose_hoover(Q)
         call write_jmol_xyz(jmol)
     end do
 

@@ -4,6 +4,8 @@ module thermostat
   use constants
   use random
   implicit none
+
+  real(dp) :: zeta
   
 contains
 
@@ -59,6 +61,17 @@ contains
     end do
 
   end subroutine andersen
-    
+
+  subroutine nose_hoover(Q)
+      ! Propagate zeta to control temperature with
+      ! Nose-Hoover thermostat
+      real(dp), intent(in) :: Q
+      real(dp) :: avgke
+
+      ! Update zeta by half a step
+      avgke = calc_avg_kin_energy()
+      zeta = zeta + (dt*(N*avgke - (3*N + 1)*T/2d0))/(Q)
+  end subroutine nose_hoover
+      
 end module thermostat
 

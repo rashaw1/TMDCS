@@ -11,10 +11,11 @@ module integrator
 
 contains
 
-  subroutine calc_positions()
+  subroutine calc_positions(zeta)
     ! Routine to calculate the new positions at time step t + dt
     ! and half-update the velocities to t + dt/2
     integer :: i, j ! Indices
+    real(dp), intent(in) :: zeta
     real(dp) :: rt, vt, ft, m, dt2, dtsq2
 
     dt2 = dt / 2.0
@@ -33,12 +34,12 @@ contains
           ft = forces(j, i)
           
           ! Update position
-          positions(j, i) = rt + vt*dt + dtsq2*ft/m
+          positions(j, i) = rt + vt*dt + dtsq2*(ft/m - zeta*vt)
           ! Take account of pcbs
           positions(j, i) = positions(j, i) - box*floor(positions(j, i)/box)
           
           ! Half-update velocity
-          velocities(j, i) = vt + dt2*ft/m
+          velocities(j, i) = vt + dt2*(ft/m - zeta*vt)
           
        end do xyzloop
 
@@ -46,13 +47,14 @@ contains
        
   end subroutine calc_positions
 
-  subroutine calc_velocities()
+  subroutine calc_velocities(zeta)
     ! Routine to calculate the new velocities at time step t + dt
-
+    real(dp), intent(in) :: zeta
     integer :: i, j ! Indices
-    real(dp) :: vt, ft, dt2, m
+    real(dp) :: vt, ft, dt2, m, dt2zeta
 
     dt2 = dt / 2.0
+    dt2zeta = 1d0 + dt2*zeta
 
     ! Loop over particles
     ploop: do i = 1, N
@@ -66,7 +68,7 @@ contains
           m = params(1, i)
           
           ! Update the velocities
-          velocities(j, i) = vt + dt2*ft/m
+          velocities(j, i) = dt2zeta*(vt + dt2*ft/m)
        end do xyzloop
 
     end do ploop
