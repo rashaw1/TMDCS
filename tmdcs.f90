@@ -12,7 +12,9 @@ program tmdcs
 
     ! Declare variables
     real(dp), dimension(50*99) :: energies
+    real(dp) :: frequency = 0.001
     integer :: i
+    integer :: jmol, geom_out
     character(255) :: filename
 
     ! get filename to use throughout from command line
@@ -26,15 +28,11 @@ program tmdcs
     ! setup logging
     call errors_init(filename)
     ! Would read input here
-
+    
     ! Initialise the SYSTEM and set particles on a grid
     call throw_log("Initialising...", 4)
     call random_init() ! seed PRNG
     call system_init(filename) ! read in variables, initialise arrays
-
-    !call set_positions_grid()
-    write(*, *) 'INITIAL POSITIONS:'
-    call print_system()
 
     do i = 1, N
         write(*,*) atom_names(i), params(:, i)
@@ -44,6 +42,9 @@ program tmdcs
     call throw_log("Calculating initial forces", 3)
     call force(energies)
 
+    ! Open xyz file
+    call open_file(jmol, trim(filename) // "_out.xyz", 1)
+    
     call throw_log("Beginning main MD loop", 2)
     ! Start main loop
     ! Procedure:
@@ -56,13 +57,15 @@ program tmdcs
         call throw_log("Starting iteration " // trim(inttostr(iter)), 2)
         call force(energies)
         call calc_velocities()
-        call rescale()
+        ! call rescale()
+        call andersen(frequency)
         call calc_positions()
-        write(*, *) 100
-        write(*, *) 'Iteration ', iter
-        call print_system()
+        call write_jmol_xyz(jmol)
     end do
 
+    call open_file(geom_out, trim(filename) // "_out.geom", 1)
+    call write_geom(geom_out)
+    
     call finalise()
     !  call close_files()
     call errors_final()

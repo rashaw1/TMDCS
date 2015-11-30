@@ -97,7 +97,8 @@ contains
                 case ("rcut")
                     read(unit_run, *) keyword, r_cut
                     r_cut = r_cut * r_cut
-                case default
+                    e_cut = 4d0/(r_cut**12 - r_cut**6) 
+                 case default
                     read(unit_run, '(A)') str1
                     call throw_warning("Could not handle runfile line " // str1)
             end select
@@ -245,5 +246,43 @@ contains
             (l <= zl) ) ) then
             charisalpha = .true.
         end if
-    end function
+    end function charisalpha
+
+    subroutine write_jmol_xyz(jmol_unit)
+        ! Writes the current xyz coordinates of the system
+        ! to the jmol .xyz output file
+        integer, intent(in) :: jmol_unit
+        integer :: i
+        write(jmol_unit, *) N
+        write(jmol_unit, *) 'Iteration', iter
+        do i = 1, N
+           write(jmol_unit, *) atom_names(i), positions(:, i)
+        end do
+    end subroutine write_jmol_xyz
+
+    subroutine write_geom(output_geom_unit)
+        ! Writes the system as a .geom file ready for input
+        ! back into TMDCS
+        integer, intent(in) :: output_geom_unit
+        integer :: i
+        character(8) :: curr_atom, next_atom
+        
+        write(output_geom_unit, *) 'XYZ'
+
+        curr_atom = atom_names(1)
+        write(output_geom_unit, *) curr_atom
+        write(output_geom_unit, '(6F12.8)') positions(:, 1), velocities(:, 1)
+        do i = 2, N
+           next_atom = atom_names(i)
+           if (next_atom == curr_atom) then      
+              write(output_geom_unit, '(6F12.8)') positions(:, i), velocities(:, i)
+           else
+              curr_atom = next_atom
+              write(output_geom_unit, *)
+              write(output_geom_unit, *) curr_atom
+              write(output_geom_unit, '(6F12.8)') positions(:, 1), velocities(:, 1)
+           end if
+        end do
+    end subroutine write_geom
+    
 end module io

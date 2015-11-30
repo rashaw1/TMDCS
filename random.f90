@@ -35,6 +35,28 @@ contains
 
         random_real = random_real * (hi - lo) + lo
     end function
-end module
+
+    real(dp) function random_normal(mean, stddev)
+        ! Gives a random number sampled from a normal
+        ! distribution N(mean, stddev)
+        real(dp), intent(in) :: mean, stddev
+        real(dp) :: r, theta, sigma
+        real(dp), dimension(2) :: temp
+
+        if (stddev == 0d0) then
+           sigma = 1d0
+        else if (stddev < 0d0) then
+           sigma = -1*stddev
+        else
+           sigma = stddev
+        end if
+
+        call random_number(temp)
+        r = sqrt(-2.0d0*log(temp(1)))
+        theta = 2.0d0*PI*temp(2)
+        random_normal = mean+sigma*r*sin(theta)
+    end function random_normal  
+                
+end module random
 
     
