@@ -6,6 +6,7 @@ module integrator
   ! Import necessary modules
   use constants
   use system
+  use thermostat
   
   implicit none
 
@@ -54,7 +55,7 @@ contains
     real(dp) :: vt, ft, dt2, m, dt2zeta
 
     dt2 = dt / 2.0
-    dt2zeta = 1d0 + dt2*zeta
+    dt2zeta = 1d0/(1d0 + dt2*zeta)
 
     ! Loop over particles
     ploop: do i = 1, N

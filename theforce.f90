@@ -86,7 +86,6 @@ contains
         ! distance of each other
         if (dist < r_cut) then
             forcecoeff = 48 * epsil * (1/dist) * ( ( ratio ** 2 ) - ratio / 2d0 )
-            if (forcecoeff > 100000) write(*, *) i, j, ratio, dist
             
             do k=1, 3, 1
                forces(k, i) = forces(k, i) + forcecoeff*rij(k)/box
