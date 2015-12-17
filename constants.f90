@@ -2,7 +2,10 @@ module constants
     implicit none
    
     integer, parameter :: dp = selected_real_kind(15,307)
-   
+
+    ! Value for pi
+    real(dp), parameter :: PI = 3.141592653589793238462
+    
     !Define derived type variable for atoms
     type atom
         character(len = 3) :: symbol    ! Chemical Symbol

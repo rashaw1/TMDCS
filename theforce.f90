@@ -81,15 +81,15 @@ contains
         ! It is useful to have the ratio of sigma^6 to r^6
         ratio = (sigma ** 6) / (dist ** 3)
         
-        energy = 4 * epsil * ( (ratio ** 2) - ratio )
+        energy = 4 * epsil * ( (ratio ** 2) - ratio ) - e_cut
         ! Calculate forces, only for particles which are within the cutoff
         ! distance of each other
         if (dist < r_cut) then
-            forcecoeff = 48 * epsil * (1/dist) * ( ( ratio ** 2 ) - ratio / 2 )
+            forcecoeff = 48 * epsil * (1/dist) * ( ( ratio ** 2 ) - ratio / 2d0 )
             
             do k=1, 3, 1
-               forces(k, i) = forces(k, i) + forcecoeff*rij(k)
-               forces(k, j) = forces(k, j) - forcecoeff*rij(k)
+               forces(k, i) = forces(k, i) + forcecoeff*rij(k)/box
+               forces(k, j) = forces(k, j) - forcecoeff*rij(k)/box
             enddo
         endif
            
@@ -111,12 +111,14 @@ contains
         integer :: k
 
         ! (Move the x, y and z components of i and j into a vector)
-        posi(1) = state(2,i)
-        posi(2) = state(3,i)
-        posi(3) = state(4,i)
-        posj(1) = state(2,j)
-        posj(2) = state(3,j)
-        posj(3) = state(4,j)
+        posi = positions(:, i)
+        posj = positions(:, j)
+        !posi(1) = state(2,i)
+        !posi(2) = state(3,i)
+        !posi(3) = state(4,i)
+        !posj(1) = state(2,j)
+        !posj(2) = state(3,j)
+        !posj(3) = state(4,j)
 
         ! Calculate rij as a vector, taking into account pbcs
         do k = 1, 3, 1

@@ -6,15 +6,17 @@ module integrator
   ! Import necessary modules
   use constants
   use system
+  use thermostat
   
   implicit none
 
 contains
 
-  subroutine calc_positions()
+  subroutine calc_positions(zeta)
     ! Routine to calculate the new positions at time step t + dt
     ! and half-update the velocities to t + dt/2
     integer :: i, j ! Indices
+    real(dp), intent(in) :: zeta
     real(dp) :: rt, vt, ft, m, dt2, dtsq2
 
     dt2 = dt / 2.0
@@ -27,18 +29,18 @@ contains
        xyzloop: do j = 1, 3
 
           ! Unpack variables from arrays for clarity
-          rt = state(j+1, i)
-          vt = state(j+4, i)
+          rt = positions(j, i)
+          vt = velocities(j, i)
           m = params(1, i)
           ft = forces(j, i)
           
           ! Update position
-          state(j+1, i) = rt + vt*dt + dtsq2*ft/m
+          positions(j, i) = rt + vt*dt + dtsq2*(ft/m - zeta*vt)
           ! Take account of pcbs
-          state(j+1, i) = state(j+1, i) - box*floor(state(j+1, i)/box)
+          positions(j, i) = positions(j, i) - box*floor(positions(j, i)/box)
           
           ! Half-update velocity
-          state(j+4, i) = vt + dt2*ft/m
+          velocities(j, i) = vt + dt2*(ft/m - zeta*vt)
           
        end do xyzloop
 
@@ -46,13 +48,14 @@ contains
        
   end subroutine calc_positions
 
-  subroutine calc_velocities()
+  subroutine calc_velocities(zeta)
     ! Routine to calculate the new velocities at time step t + dt
-
+    real(dp), intent(in) :: zeta
     integer :: i, j ! Indices
-    real(dp) :: vt, ft, dt2, m
+    real(dp) :: vt, ft, dt2, m, dt2zeta
 
     dt2 = dt / 2.0
+    dt2zeta = 1d0/(1d0 + dt2*zeta)
 
     ! Loop over particles
     ploop: do i = 1, N
@@ -61,12 +64,12 @@ contains
        xyzloop: do j = 1, 3
 
           ! Unpack the variables from arrays
-          vt = state(j+4, i)
+          vt = velocities(j, i)
           ft = forces(j, i)
           m = params(1, i)
           
           ! Update the velocities
-          state(j+4, i) = vt + dt2*ft/m
+          velocities(j, i) = dt2zeta*(vt + dt2*ft/m)
        end do xyzloop
 
     end do ploop
