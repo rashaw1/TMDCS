@@ -77,7 +77,7 @@ contains
       d2_zeta = (1d0/(tau**2))*(avgke - 1d0)
       d_zeta = d_zeta + d2_zeta*dt/2d0
       zeta = zeta + d_zeta*dt
-  end subroutine nose_hoover_update
+  end subroutine nose_hoover
       
 end module thermostat
 
